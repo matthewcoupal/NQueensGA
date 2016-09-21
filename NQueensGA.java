@@ -4,17 +4,30 @@
  * Assignment 2 - Genetic Algorithms
  * Due Date: 10/03/2016
  */
+import java.util.Random;
 
 public class NQueensGA {
+  private static Random rand = new Random();
   public static void main(String[] args) {
     // Put code here
+  }
+
+  /**
+   * Generalized Random Generator
+   * @param  maxValue The maximum value to be possibly generated
+   * @return          An value between 0 and the max value;
+   */
+  public static int getRand(int maxValue) {
+    float randInitial = rand.nextFloat();
+    int randScaled = (int) (randInitial * maxValue);
+    return randScaled;
   }
 }
 
 /**
  * Solution (not best solution) to the NQueens problem
  */
-public class Solution {
+class Solution {
   private int[] configuration;
   private float fitness;
 
@@ -38,7 +51,7 @@ public class Solution {
    * Mutator for the solution's fitness.
    * @return The fitness of the solution.
    */
-  public getFitness() {
+  public float getFitness() {
     return this.fitness;
   }
 
