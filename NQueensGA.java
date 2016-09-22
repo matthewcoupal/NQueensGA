@@ -6,17 +6,21 @@
  */
 import java.util.Random;
 import java.util.Arrays;
+import java.awt.Point;
 
 public class NQueensGA {
-  // Random generator backend for the generalized random generator method.
+  //doubleom generator backend for the generalized random generator method.
   private static Random rand = new Random();
 
-  private static final int BOARD_SIZE = 3;
+  private static final int BOARD_SIZE = 4;
+  private static final double EPSILON = 0.0001;
 
   public static void main(String[] args) {
     // Set the default generation number.
     int generationNumber = 0;
-    final int MAX_GENERATIONS = 1000;
+    final int MAX_GENERATIONS = 1;
+
+    final double SOLVED_STATIC = 1/EPSILON;
 
     // Set to initial population size.
     int populationSize = BOARD_SIZE * 10;
@@ -32,6 +36,10 @@ public class NQueensGA {
 
     while (!foundSolution && generationNumber < MAX_GENERATIONS) {
       for (Solution individual : generation) {
+        System.out.println("Assess Individual " + individual);
+        // assess(individual);
+        individual.setFitness(assess(individual));
+        System.out.println(assess(individual));
         /*
         if individual has found the solution:
         1 set flag to true
@@ -46,6 +54,91 @@ public class NQueensGA {
     if(foundSolution) {
       // Log the solution that found it;
     }
+  }
+
+  private static double assess(Solution individual) {
+    // Extract the genotype of the individual
+    int [] genotype = individual.getConfiguration();
+    // set the base number of conflicts possible
+    int conflicts = 0;
+
+    /*
+    normalization in positive slope;
+    |   |   |   | / | y
+    |   |   | / |   |
+    |   | / |   |   |
+    | / |   |   |   |
+    x
+     */
+    Point[] normalQueensPos = new Point[genotype.length];
+    for (int i = 0; i < genotype.length; i++) {
+      normalQueensPos[i] = normalize(i ,genotype[i], 1);
+      // System.out.println("(" + i + ", " + genotype[i] + "->" + normalQueensPos[i]);
+    }
+    // determine number of conflicts in the positive diagonal slope
+    conflicts += numberOfConflicts(normalQueensPos);
+
+    // Can't condense into using single Point array due to the method being
+    // static.
+    Point[] normalQueensNeg = new Point[genotype.length];
+
+    /*
+    normalization in negative slope;
+    | \ |   |   |   | y
+    |   | \ |   |   |
+    |   |   | \ |   |
+    |   |   |   | \ |
+    x
+     */
+    for (int i = 0; i < genotype.length; i++) {
+      normalQueensNeg[i] = normalize(i, genotype[i], -1);
+      // System.out.println("(" + i + ", " + genotype[i] + "->" + normalQueensNeg[i]);
+    }
+    // Determine number of conflicts in the negative diagonal and add it to
+    // the cumulative number of conflicts.
+    conflicts += numberOfConflicts(normalQueensNeg);
+    // System.out.println(conflicts);
+    // System.out.println(Arrays.toString(normalQueens));
+    return 1/(conflicts + EPSILON);
+  }
+
+  private static int numberOfConflicts(Point[] normalizedPositions) {
+    int conflicts = 0;
+    // System.out.println(Arrays.toString(normalizedPositions));
+    for (int i = 0; i < normalizedPositions.length - 1; i++) {
+      for (int j = i + 1; j < normalizedPositions.length; j++) {
+        // System.out.println("Compare " + i + " to " + j);
+        if ((normalizedPositions[i].x == normalizedPositions[j].x) &&
+            (normalizedPositions[i].y == normalizedPositions[j].y)) {
+          conflicts += 1;
+        }
+      }
+    }
+    return conflicts;
+  }
+
+  /**
+   * Takes a point on the board and normalizes the vector based on direction.
+   * @param   x The x component of the vector.
+   * @param   y The y component of the vector.
+   * @param   slope The slope of the vector (1 = positive; -1 = negative)
+   * @return  The normalized vector.
+   */
+  private static Point normalize(int x, int y, int slope) {
+    if (slope == 1) {
+      if ((x == BOARD_SIZE - 1) || (y == BOARD_SIZE - 1)) {
+        return new Point(x, y);
+      }
+      return normalize(x + 1, y + 1, slope);
+    } else if (slope == -1) {
+      if ((x == BOARD_SIZE - 1) || (y == 0)) {
+        return new Point(x, y);
+      }
+      return normalize(x + 1, y - 1, slope);
+    }
+    System.err.println("Not a good slope");
+    System.exit(1);
+    return null;
   }
 
   /**
@@ -98,7 +191,7 @@ public class NQueensGA {
  */
 class Solution {
   private int[] configuration;
-  private float fitness;
+  private double fitness;
 
   /**
    * Solution Constructor.
@@ -124,7 +217,7 @@ class Solution {
    * Mutator for the solution's fitness.
    * @param fitness The evaluated fitness of this solution.
    */
-  public void setFitness(int fitness) {
+  public void setFitness(double fitness) {
     this.fitness = fitness;
   }
 
@@ -132,7 +225,7 @@ class Solution {
    * Mutator for the solution's fitness.
    * @return The fitness of the solution.
    */
-  public float getFitness() {
+  public double getFitness() {
     return this.fitness;
   }
 
