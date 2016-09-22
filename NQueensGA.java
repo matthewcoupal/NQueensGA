@@ -11,15 +11,41 @@ public class NQueensGA {
   // Random generator backend for the generalized random generator method.
   private static Random rand = new Random();
 
-  private static final int BOARD_SIZE = 12;
+  private static final int BOARD_SIZE = 3;
 
   public static void main(String[] args) {
     // Set the default generation number.
     int generationNumber = 0;
+    final int MAX_GENERATIONS = 1000;
+
     // Set to initial population size.
     int populationSize = BOARD_SIZE * 10;
+
+    // Flag to set when a solution has been found.
+    boolean foundSolution = false;
+
+    // Place to store the solution that solves NQueens.
+    Solution solved = null;
+
     // Initialize the population with random solutions.
     Solution[] generation = initialize(populationSize);
+
+    while (!foundSolution && generationNumber < MAX_GENERATIONS) {
+      for (Solution individual : generation) {
+        /*
+        if individual has found the solution:
+        1 set flag to true
+        2 assign solution to solved
+        3 break
+        */
+      }
+      if(!foundSolution) {
+        generationNumber += 1;
+      }
+    }
+    if(foundSolution) {
+      // Log the solution that found it;
+    }
   }
 
   /**
