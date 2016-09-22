@@ -5,11 +5,54 @@
  * Due Date: 10/03/2016
  */
 import java.util.Random;
+import java.util.Arrays;
 
 public class NQueensGA {
+  // Random generator backend for the generalized random generator method.
   private static Random rand = new Random();
+
+  private static final int BOARD_SIZE = 12;
+
   public static void main(String[] args) {
-    // Put code here
+    // Set the default generation number.
+    int generationNumber = 0;
+    // Set to initial population size.
+    int populationSize = BOARD_SIZE * 10;
+    // Initialize the population with random solutions.
+    Solution[] generation = initialize(populationSize);
+  }
+
+  /**
+   * Initializes the generation zero population.
+   * @param  size The population size of generation zero.
+   * @return      The entire generation.
+   */
+  private static Solution[] initialize(int size) {
+    Solution[] population = new Solution[size];
+    for (int i = 0; i < size; i++) {
+      int[] genotype = new int[BOARD_SIZE];
+      for (int j = 0; j < BOARD_SIZE; j++) {
+        genotype[j] = j;
+      }
+      for (int j = 0; j < BOARD_SIZE; j++) {
+        swap(genotype, getRand(BOARD_SIZE), getRand(BOARD_SIZE));
+      }
+      Solution individual = new Solution(genotype);
+      population[i] = individual;
+    }
+    return population;
+  }
+
+  /**
+   * Swaps two genes in the genotype.
+   * @param  genotype The genotype of the solution.
+   * @param  geneA The first gene to swap.
+   * @param  geneB The second gene to swap.
+   */
+  private static void swap(int[] genotype, int geneA, int geneB) {
+    int temp = genotype[geneA];
+    genotype[geneA] = genotype[geneB];
+    genotype[geneB] = temp;
   }
 
   /**
@@ -17,7 +60,7 @@ public class NQueensGA {
    * @param  maxValue The maximum value to be possibly generated
    * @return          An value between 0 and the max value;
    */
-  public static int getRand(int maxValue) {
+  private static int getRand(int maxValue) {
     float randInitial = rand.nextFloat();
     int randScaled = (int) (randInitial * maxValue);
     return randScaled;
@@ -25,7 +68,7 @@ public class NQueensGA {
 }
 
 /**
- * Solution (not best solution) to the NQueens problem
+ * Solution (not always THE best solution) to the NQueens problem
  */
 class Solution {
   private int[] configuration;
@@ -37,6 +80,18 @@ class Solution {
    */
   public Solution(int[] configuration) {
     this.configuration = configuration;
+  }
+
+  /**
+   * Method to override the default toString method for debugging purposes.
+   * @return [description]
+   */
+  public String toString() {
+    String output = "<" + this.configuration[0];
+    for (int i = 1; i < this.configuration.length; i++) {
+      output += ", " + this.configuration[i];
+    }
+    return output += ">";
   }
 
   /**
@@ -60,6 +115,14 @@ class Solution {
    */
   public int[] getConfiguration() {
     return this.configuration;
+  }
+
+  /**
+   * Mutator for the solution's configuration.
+   * @param configuration the new configuration of the solution
+   */
+  public void setConfiguration(int[] configuration) {
+    this.configuration = configuration;
   }
 
 }
