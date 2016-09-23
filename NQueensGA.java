@@ -12,7 +12,7 @@ public class NQueensGA {
   //doubleom generator backend for the generalized random generator method.
   private static Random rand = new Random();
 
-  private static final int BOARD_SIZE = 4;
+  private static final int BOARD_SIZE = 12;
   private static final double EPSILON = 0.0001;
 
   public static void main(String[] args) {
@@ -20,7 +20,7 @@ public class NQueensGA {
     int generationNumber = 0;
     final int MAX_GENERATIONS = 1;
 
-    final double SOLVED_STATIC = 1/EPSILON;
+    final double SOLVED_SOLUTION = 1/EPSILON;
 
     // Set to initial population size.
     int populationSize = BOARD_SIZE * 10;
@@ -36,18 +36,46 @@ public class NQueensGA {
 
     while (!foundSolution && generationNumber < MAX_GENERATIONS) {
       for (Solution individual : generation) {
+
+        // Determine the individual's fitness
         System.out.println("Assess Individual " + individual);
-        // assess(individual);
         individual.setFitness(assess(individual));
-        System.out.println(assess(individual));
-        /*
-        if individual has found the solution:
-        1 set flag to true
-        2 assign solution to solved
-        3 break
-        */
+
+        // Did the individual solve the NQueens problem?
+        if(individual.getFitness() == SOLVED_SOLUTION) {
+          foundSolution = true;
+          solved = individual;
+          System.out.println("Solution Found");
+          break;
+        }
       }
       if(!foundSolution) {
+        // Parent Selection
+        // Create the mating pool
+        double poolSize = generation.length * .1;
+        System.out.println(poolSize);
+        Solution[] matingPool = new Solution[ (int) poolSize];
+        System.out.println(matingPool.length);
+        int currentMember = 0;
+        while (currentMember <= matingPool.length - 1) {
+          System.out.println(currentMember);
+          Solution individualOne = generation[getRand(generation.length - 1)];
+          Solution individualTwo = generation[getRand(generation.length - 1)];
+          Solution individualThree = generation[getRand(generation.length - 1)];
+
+          // Set winner WHY NOT MEETING POOL SIZE
+          Solution i = individualOne;
+          if (individualTwo.getFitness() > i.getFitness()) {
+            i = individualTwo;
+          }
+          if (individualThree.getFitness() > i.getFitness()) {
+            i = individualThree;
+          }
+          // System.out.println(currentMember);
+          matingPool[currentMember] = i;
+          currentMember += 1;
+        }
+        System.out.println(Arrays.toString(matingPool));
         generationNumber += 1;
       }
     }
@@ -56,6 +84,11 @@ public class NQueensGA {
     }
   }
 
+  /**
+   * Assesses the fitness of a solution.
+   * @param  individual The solution to be evaluated.
+   * @return            The evalutated fitness of the solution.
+   */
   private static double assess(Solution individual) {
     // Extract the genotype of the individual
     int [] genotype = individual.getConfiguration();
@@ -102,6 +135,11 @@ public class NQueensGA {
     return 1/(conflicts + EPSILON);
   }
 
+  /**
+   * Determines the number of conflicts in a given configuration.
+   * @param  normalizedPositions The normalized positions of the queens.
+   * @return                     The number of conflicts.
+   */
   private static int numberOfConflicts(Point[] normalizedPositions) {
     int conflicts = 0;
     // System.out.println(Arrays.toString(normalizedPositions));
