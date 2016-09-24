@@ -15,12 +15,12 @@ public class NQueensGA {
 
   private static final int BOARD_SIZE = 7;
   private static final double EPSILON = 0.0001;
+  final static double MUTATION_CHANCE = .1;
 
   public static void main(String[] args) {
     // Set the default generation number.
     int generationNumber = 0;
     final int MAX_GENERATIONS = 1;
-    final double MUTATION_CHANCE = .1;
 
     final double SOLVED_SOLUTION = 1/EPSILON;
 
@@ -85,15 +85,30 @@ public class NQueensGA {
         // Sort the mating pool for pairing purposes.
         Arrays.sort(matingPool);
 
+
+        Solution[] newPopulation = new Solution[generation.length + matingPool.length];
         // Parent Pairing - The two best, the next two best...
         for (int i = 0; i < matingPool.length / 2; i++) {
-          System.out.println("Mate: " + matingPool[2 * i] + " and " + matingPool[(2 * i) + 1]);
+          // System.out.println("Mate: " + matingPool[2 * i] + " and " + matingPool[(2 * i) + 1]);
           Solution[] children = crossover(matingPool[2 * i], matingPool[(2 * i) + 1]);
-          System.out.println(Arrays.toString(children));
+          // System.out.println(Arrays.toString(children));
           children[0] = mutate(children[0]);
           children[1] = mutate(children[1]);
-          System.out.println(Arrays.toString(children));
+
+          // Calculate fitness before adding to the final array.
+          children[0].setFitness(assess(children[0]));
+          children[1].setFitness(assess(children[1]));
+          // Copy all of the solutions to a new population array
+          System.arraycopy(generation, 0, newPopulation, 0, generation.length);
+          System.arraycopy(children, 0, newPopulation, generation.length + (2 * i), children.length);
         }
+
+        // Fitness-biased survivor selection
+        // Sort the population by fitness
+        Arrays.sort(newPopulation);
+        // Move only the top 90 percent (size of generation) to the next generation
+        System.arraycopy(newPopulation, 0, generation, 0, generation.length);
+        // Increase Generation Count
         generationNumber += 1;
       }
     }
@@ -102,10 +117,17 @@ public class NQueensGA {
     }
   }
 
+  /**
+   * Mutates an individual at random; 10% chance of mutation occurring.
+   * @param  individual The solution to be mutated
+   * @return            The possibly mutated individual.
+   */
   private static Solution mutate(Solution individual) {
     int[] genotype = individual.getConfiguration();
-    int willMutate = getRand(10);
+    // Determine if the individual will mutate. 1 in 10 chance.
+    int willMutate = getRand((int) MUTATION_CHANCE * 100);
     if (willMutate == 1) {
+      // Pick two pieces of the genotype and swap them.
       int value1 = getRand(genotype.length - 1);
       int value2 = getRand(genotype.length - 1);
       swap(genotype, value1, value2);
@@ -114,6 +136,12 @@ public class NQueensGA {
     return individual;
   }
 
+  /**
+   * Performs genetic crossover of two parents.
+   * @param parentA The first chosen parent to mate.
+   * @param parentB The parent chosen to mate with the first chosen parent.
+   * @return Two new children with characteristics of each parent.
+   */
   private static Solution[] crossover(Solution parentA, Solution parentB) {
     // Grab the genes from the parents
     int[] aGenes = parentA.getConfiguration();
