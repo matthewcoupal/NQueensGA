@@ -20,6 +20,7 @@ public class NQueensGA {
     // Set the default generation number.
     int generationNumber = 0;
     final int MAX_GENERATIONS = 1;
+    final double MUTATION_CHANCE = .1;
 
     final double SOLVED_SOLUTION = 1/EPSILON;
 
@@ -89,6 +90,9 @@ public class NQueensGA {
           System.out.println("Mate: " + matingPool[2 * i] + " and " + matingPool[(2 * i) + 1]);
           Solution[] children = crossover(matingPool[2 * i], matingPool[(2 * i) + 1]);
           System.out.println(Arrays.toString(children));
+          children[0] = mutate(children[0]);
+          children[1] = mutate(children[1]);
+          System.out.println(Arrays.toString(children));
         }
         generationNumber += 1;
       }
@@ -96,6 +100,18 @@ public class NQueensGA {
     if(foundSolution) {
       // Log the solution that found it;
     }
+  }
+
+  private static Solution mutate(Solution individual) {
+    int[] genotype = individual.getConfiguration();
+    int willMutate = getRand(10);
+    if (willMutate == 1) {
+      int value1 = getRand(genotype.length - 1);
+      int value2 = getRand(genotype.length - 1);
+      swap(genotype, value1, value2);
+      individual.setConfiguration(genotype);
+    }
+    return individual;
   }
 
   private static Solution[] crossover(Solution parentA, Solution parentB) {
