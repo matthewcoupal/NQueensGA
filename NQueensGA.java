@@ -13,7 +13,7 @@ public class NQueensGA {
   //doubleom generator backend for the generalized random generator method.
   private static Random rand = new Random();
 
-  private static final int BOARD_SIZE = 12;
+  private static final int BOARD_SIZE = 7;
   private static final double EPSILON = 0.0001;
 
   public static void main(String[] args) {
@@ -84,9 +84,11 @@ public class NQueensGA {
         // Sort the mating pool for pairing purposes.
         Arrays.sort(matingPool);
 
-        // Parent Pairing
+        // Parent Pairing - The two best, the next two best...
         for (int i = 0; i < matingPool.length / 2; i++) {
           System.out.println("Mate: " + matingPool[2 * i] + " and " + matingPool[(2 * i) + 1]);
+          Solution[] children = crossover(matingPool[2 * i], matingPool[(2 * i) + 1]);
+          System.out.println(Arrays.toString(children));
         }
         generationNumber += 1;
       }
@@ -94,6 +96,78 @@ public class NQueensGA {
     if(foundSolution) {
       // Log the solution that found it;
     }
+  }
+
+  private static Solution[] crossover(Solution parentA, Solution parentB) {
+    // Grab the genes from the parents
+    int[] aGenes = parentA.getConfiguration();
+    int[] bGenes = parentB.getConfiguration();
+
+    // Find the crossover point
+    int crossoverPoint = getRand(aGenes.length - 1);
+    // Create storage for the child genes
+    int[] cGenes = new int[aGenes.length];
+    int[] dGenes = new int[aGenes.length];
+    // Place pre-crossover genes from parents a and b to children c and d respectively.
+    for (int i = 0; i < crossoverPoint; i++) {
+      cGenes[i] = aGenes[i];
+      dGenes[i] = bGenes[i];
+    }
+
+    for (int i = crossoverPoint; i < aGenes.length; i++) {
+      cGenes[i] = -1;
+      dGenes[i] = -1;
+    }
+
+    // mark the gene insertion points starting from the crossover point.
+    int currentC = crossoverPoint;
+    int currentD = crossoverPoint;
+
+    // Check to see which genes were already inserted and add the rest
+    // child C
+    for (int i = 0; i < BOARD_SIZE; i++) {
+      boolean geneFound = false;
+      for (int j = 0; j < cGenes.length; j++) {
+        if (cGenes[j] == bGenes[i]) {
+          geneFound = true;
+        }
+      }
+      if (!geneFound) {
+        cGenes[currentC] = bGenes[i];
+        currentC += 1;
+      }
+      if (currentC == cGenes.length) {
+        break;
+      }
+      if (geneFound) {
+        continue;
+      }
+    }
+
+    // child D
+    for (int i = 0; i < BOARD_SIZE; i++) {
+      boolean geneFound = false;
+      for (int j = 0; j < dGenes.length; j++) {
+        if (dGenes[j] == aGenes[i]) {
+          geneFound = true;
+        }
+      }
+      if (!geneFound) {
+        dGenes[currentD] = aGenes[i];
+        currentD += 1;
+      }
+      if (currentD == dGenes.length) {
+        break;
+      }
+      if (geneFound) {
+        continue;
+      }
+    }
+
+    // Package the two configurations into separate solutions.
+    Solution[] children = {new Solution(cGenes), new Solution(dGenes)};
+    // Return both
+    return children;
   }
 
   /**
