@@ -7,6 +7,7 @@
 import java.util.Random;
 import java.util.Arrays;
 import java.awt.Point;
+import java.lang.Comparable;
 
 public class NQueensGA {
   //doubleom generator backend for the generalized random generator method.
@@ -38,7 +39,7 @@ public class NQueensGA {
       for (Solution individual : generation) {
 
         // Determine the individual's fitness
-        System.out.println("Assess Individual " + individual);
+        // System.out.println("Assess Individual " + individual);
         individual.setFitness(assess(individual));
 
         // Did the individual solve the NQueens problem?
@@ -53,17 +54,21 @@ public class NQueensGA {
         // Parent Selection
         // Create the mating pool
         double poolSize = generation.length * .1;
-        System.out.println(poolSize);
-        Solution[] matingPool = new Solution[ (int) poolSize];
-        System.out.println(matingPool.length);
+        int finalPoolSize = (int) poolSize;
+        // Make sure the size of the mating pool is even.
+        if (finalPoolSize % 2 != 0) {
+          finalPoolSize -= 1;
+        }
+        Solution[] matingPool = new Solution[ (int) finalPoolSize];
+
+        // Populate the pool.
         int currentMember = 0;
         while (currentMember <= matingPool.length - 1) {
-          System.out.println(currentMember);
           Solution individualOne = generation[getRand(generation.length - 1)];
           Solution individualTwo = generation[getRand(generation.length - 1)];
           Solution individualThree = generation[getRand(generation.length - 1)];
 
-          // Set winner WHY NOT MEETING POOL SIZE
+          // Set winner
           Solution i = individualOne;
           if (individualTwo.getFitness() > i.getFitness()) {
             i = individualTwo;
@@ -71,11 +76,18 @@ public class NQueensGA {
           if (individualThree.getFitness() > i.getFitness()) {
             i = individualThree;
           }
-          // System.out.println(currentMember);
+          // Add winner to the pool
           matingPool[currentMember] = i;
           currentMember += 1;
         }
-        System.out.println(Arrays.toString(matingPool));
+
+        // Sort the mating pool for pairing purposes.
+        Arrays.sort(matingPool);
+
+        // Parent Pairing
+        for (int i = 0; i < matingPool.length / 2; i++) {
+          System.out.println("Mate: " + matingPool[2 * i] + " and " + matingPool[(2 * i) + 1]);
+        }
         generationNumber += 1;
       }
     }
@@ -227,7 +239,7 @@ public class NQueensGA {
 /**
  * Solution (not always THE best solution) to the NQueens problem
  */
-class Solution {
+class Solution implements Comparable<Solution> {
   private int[] configuration;
   private double fitness;
 
@@ -240,15 +252,36 @@ class Solution {
   }
 
   /**
+   * Compares two solutions by their fitness.
+   * @param  otherSolution The solution to compare to.
+   * @return               -1 if this is less fit; 1 if this is more fit; 0 if
+   *                       they have the same fitness.
+   */
+  public int compareTo(Solution otherSolution) {
+    // Less fit?
+    if(this.fitness < otherSolution.getFitness()) {
+      return -1;
+    // More fit?
+    } else if (this.fitness > otherSolution.getFitness()) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
    * Method to override the default toString method for debugging purposes.
-   * @return [description]
+   * @return String containing the configuration points.
    */
   public String toString() {
     String output = "<" + this.configuration[0];
     for (int i = 1; i < this.configuration.length; i++) {
       output += ", " + this.configuration[i];
     }
-    return output += ">";
+    output += ">";
+    if (this.fitness > 0) {
+      return output += " Fit: " + this.fitness;
+    }
+    return output;
   }
 
   /**
