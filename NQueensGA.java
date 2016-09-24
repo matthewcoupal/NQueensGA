@@ -8,19 +8,23 @@ import java.util.Random;
 import java.util.Arrays;
 import java.awt.Point;
 import java.lang.Comparable;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.io.FileNotFoundException;
 
 public class NQueensGA {
   //doubleom generator backend for the generalized random generator method.
   private static Random rand = new Random();
 
-  private static final int BOARD_SIZE = 7;
+  private static final int BOARD_SIZE = 12;
   private static final double EPSILON = 0.0001;
   final static double MUTATION_CHANCE = .1;
 
   public static void main(String[] args) {
     // Set the default generation number.
     int generationNumber = 0;
-    final int MAX_GENERATIONS = 1;
+    final int MAX_GENERATIONS = 1000;
 
     final double SOLVED_SOLUTION = 1/EPSILON;
 
@@ -40,7 +44,10 @@ public class NQueensGA {
       for (Solution individual : generation) {
 
         // Determine the individual's fitness
-        // System.out.println("Assess Individual " + individual);
+        // if(generationNumber < 4) {
+          // System.out.print(generationNumber + " ");
+          // System.out.println("Assess Individual " + individual);
+        // }
         individual.setFitness(assess(individual));
 
         // Did the individual solve the NQueens problem?
@@ -48,6 +55,7 @@ public class NQueensGA {
           foundSolution = true;
           solved = individual;
           System.out.println("Solution Found");
+          System.out.println(individual + " " + generationNumber);
           break;
         }
       }
@@ -107,13 +115,25 @@ public class NQueensGA {
         // Sort the population by fitness
         Arrays.sort(newPopulation);
         // Move only the top 90 percent (size of generation) to the next generation
-        System.arraycopy(newPopulation, 0, generation, 0, generation.length);
-        // Increase Generation Count
-        generationNumber += 1;
+        System.arraycopy(newPopulation, newPopulation.length - generation.length, generation, 0, generation.length);
       }
+      // Increase Generation Count
+      generationNumber += 1;
     }
     if(foundSolution) {
-      // Log the solution that found it;
+      try {
+        PrintStream sout = new PrintStream(new FileOutputStream("out.txt", true));
+        sout.println(solved + " " + generationNumber);
+      } catch (FileNotFoundException e) {
+        System.err.println(e);
+      }
+    } else {
+      try {
+        PrintStream sout = new PrintStream(new FileOutputStream("out.txt", true));
+        sout.println("No solution found " + 1000);
+      } catch (FileNotFoundException e) {
+        System.err.println(e);
+      }
     }
   }
 
@@ -396,9 +416,9 @@ class Solution implements Comparable<Solution> {
       output += ", " + this.configuration[i];
     }
     output += ">";
-    if (this.fitness > 0) {
+    /* if (this.fitness > 0) {
       return output += " Fit: " + this.fitness;
-    }
+    } */
     return output;
   }
 
