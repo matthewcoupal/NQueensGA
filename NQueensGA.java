@@ -120,22 +120,20 @@ public class NQueensGA {
       // Increase Generation Count
       generationNumber += 1;
     }
-    if(foundSolution) {
+    // Did we find a solution?
       try {
         PrintStream sout = new PrintStream(new FileOutputStream("out.txt", true));
-        sout.println(solved + " " + generationNumber);
-      } catch (FileNotFoundException e) {
-        System.err.println(e);
-      }
-    } else {
-      try {
-        PrintStream sout = new PrintStream(new FileOutputStream("out.txt", true));
-        sout.println("No solution found " + 1000);
+        if(foundSolution) {
+          // Output the solution to a file with the generation Number
+          sout.println(solved + " " + generationNumber);
+        } else {
+          // Ouput that we could not find one.
+          sout.println("No solution found " + 1000);
+        }
       } catch (FileNotFoundException e) {
         System.err.println(e);
       }
     }
-  }
 
   /**
    * Mutates an individual at random; 10% chance of mutation occurring.
