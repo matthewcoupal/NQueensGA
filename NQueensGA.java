@@ -19,7 +19,7 @@ public class NQueensGA {
 
   private static final int BOARD_SIZE = 12;
   private static final double EPSILON = 0.0001;
-  final static double MUTATION_CHANCE = .1;
+  final static double MUTATION_CHANCE = .2;
 
   public static void main(String[] args) {
     // Set the default generation number.
@@ -44,10 +44,6 @@ public class NQueensGA {
       for (Solution individual : generation) {
 
         // Determine the individual's fitness
-        // if(generationNumber < 4) {
-          // System.out.print(generationNumber + " ");
-          // System.out.println("Assess Individual " + individual);
-        // }
         individual.setFitness(assess(individual));
 
         // Did the individual solve the NQueens problem?
@@ -97,9 +93,7 @@ public class NQueensGA {
         Solution[] newPopulation = new Solution[generation.length + matingPool.length];
         // Parent Pairing - The two best, the next two best...
         for (int i = 0; i < matingPool.length / 2; i++) {
-          // System.out.println("Mate: " + matingPool[2 * i] + " and " + matingPool[(2 * i) + 1]);
           Solution[] children = crossover(matingPool[2 * i], matingPool[(2 * i) + 1]);
-          // System.out.println(Arrays.toString(children));
           children[0] = mutate(children[0]);
           children[1] = mutate(children[1]);
 
@@ -128,7 +122,7 @@ public class NQueensGA {
           sout.println(solved + " " + generationNumber);
         } else {
           // Ouput that we could not find one.
-          sout.println("No solution found " + 1000);
+          sout.println("No solution found " + generationNumber);
         }
       } catch (FileNotFoundException e) {
         System.err.println(e);
@@ -143,8 +137,8 @@ public class NQueensGA {
   private static Solution mutate(Solution individual) {
     int[] genotype = individual.getConfiguration();
     // Determine if the individual will mutate. 1 in 10 chance.
-    int willMutate = getRand((int) MUTATION_CHANCE * 100);
-    if (willMutate == 1) {
+    int willMutate = getRand(10);
+    if (willMutate <= MUTATION_CHANCE * 10 && willMutate != 0) {
       // Pick two pieces of the genotype and swap them.
       int value1 = getRand(genotype.length - 1);
       int value2 = getRand(genotype.length - 1);
@@ -273,13 +267,10 @@ public class NQueensGA {
      */
     for (int i = 0; i < genotype.length; i++) {
       normalQueensNeg[i] = normalize(i, genotype[i], -1);
-      // System.out.println("(" + i + ", " + genotype[i] + "->" + normalQueensNeg[i]);
     }
     // Determine number of conflicts in the negative diagonal and add it to
     // the cumulative number of conflicts.
     conflicts += numberOfConflicts(normalQueensNeg);
-    // System.out.println(conflicts);
-    // System.out.println(Arrays.toString(normalQueens));
     return 1/(conflicts + EPSILON);
   }
 
@@ -290,10 +281,8 @@ public class NQueensGA {
    */
   private static int numberOfConflicts(Point[] normalizedPositions) {
     int conflicts = 0;
-    // System.out.println(Arrays.toString(normalizedPositions));
     for (int i = 0; i < normalizedPositions.length - 1; i++) {
       for (int j = i + 1; j < normalizedPositions.length; j++) {
-        // System.out.println("Compare " + i + " to " + j);
         if ((normalizedPositions[i].x == normalizedPositions[j].x) &&
             (normalizedPositions[i].y == normalizedPositions[j].y)) {
           conflicts += 1;
@@ -414,6 +403,7 @@ class Solution implements Comparable<Solution> {
       output += ", " + this.configuration[i];
     }
     output += ">";
+    // Use this if you want to show the solutions fitness
     /* if (this.fitness > 0) {
       return output += " Fit: " + this.fitness;
     } */
