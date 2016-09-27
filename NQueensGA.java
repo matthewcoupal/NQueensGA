@@ -19,7 +19,7 @@ public class NQueensGA {
 
   private static final int BOARD_SIZE = 12;
   private static final double EPSILON = 0.0001;
-  final static double MUTATION_CHANCE = .2;
+  final static double MUTATION_CHANCE = .1;
 
   public static void main(String[] args) {
     // Set the default generation number.
@@ -29,7 +29,7 @@ public class NQueensGA {
     final double SOLVED_SOLUTION = 1/EPSILON;
 
     // Set to initial population size.
-    int populationSize = BOARD_SIZE * 10;
+    int populationSize = BOARD_SIZE * 12;
 
     // Flag to set when a solution has been found.
     boolean foundSolution = false;
@@ -119,10 +119,10 @@ public class NQueensGA {
         PrintStream sout = new PrintStream(new FileOutputStream("out.txt", true));
         if(foundSolution) {
           // Output the solution to a file with the generation Number
-          sout.println(solved + " " + generationNumber);
+          sout.println(generationNumber + " " + solved);
         } else {
           // Ouput that we could not find one.
-          sout.println("No solution found " + generationNumber);
+          sout.println(generationNumber + " N/A");
         }
       } catch (FileNotFoundException e) {
         System.err.println(e);
