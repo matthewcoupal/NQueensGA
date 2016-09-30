@@ -8,7 +8,7 @@ To run, type `java NQueensGA` in the terminal.
 
 To access class and method documentation in an organized manner, run JavaDoc by running `javadoc -private NQueensGA.java`. For all other comments, you must view the source code. 
 
-*Note:* I would suggest creating a new directory where `NQueens.java` is located and running `javadoc -private ../NQueens.java` to keep things neat.
+*Note:* I would suggest creating a new directory where `NQueens.java` is located and running `javadoc -private ../NQueensGA.java` to keep things neat.
 
 The parameters are as follows:
 
