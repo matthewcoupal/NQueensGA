@@ -14,7 +14,7 @@ import java.io.PrintStream;
 import java.io.FileNotFoundException;
 
 public class NQueensGA {
-  //doubleom generator backend for the generalized random generator method.
+  // Generator backend for the generalized random generator method.
   private static Random rand = new Random();
 
   private static final int BOARD_SIZE = 12;
